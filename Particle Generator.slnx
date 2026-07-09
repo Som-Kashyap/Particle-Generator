@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="Particle Generator.vcxproj" />
+  <Project Path="Particle Generator.vcxproj" Id="4a72c888-8b21-4aac-85eb-383c0def1ab5" />
 </Solution>
