@@ -1,5 +1,7 @@
 #include <SFML/Graphics.hpp>
+#include "Text.h"
 #include <iostream>
+#include <format>
 #include <ctime>
 #include <cstdlib>
 
@@ -21,30 +23,36 @@ public:
 	sf::Vector2f velocity;
 	sf::Vector2f maxVelocity = (sf::Vector2f(800.f, 500.f));
 	sf::Vector2f acceleration;
+
+	float particleRadius = 2.f;
 	
 	float lifeTime = 0.f;
 	bool draw = true;
 
-	void update(float& deltaTime , float& gravity, particleType& type);
+	void update(float& deltaTime , float& gravity, particleType& type, Text& radiusText);
 };
 
 Particle::Particle() {
 
-	particleShape.setRadius(2.f);
+	particleShape.setRadius(particleRadius);
 	particleShape.setFillColor(sf::Color(rand() % 256, rand() % 256, rand() % 256));
 	velocity = sf::Vector2f(0.f, 0.f);
 	
 
 }
 
-void Particle::update(float& deltaTime, float& gravity, particleType& type) {
+void Particle::update(float& deltaTime, float& gravity, particleType& type, Text& radiusText) {
 
 	
 	//velocity.y += gravity * deltaTime;
 
+	radiusText.toString("Radius: " + to_string(particleRadius));
+
 	lifeTime += deltaTime;
 
 	if (type == particleType::magical) {
+
+
 		if (lifeTime >= 1.5f && lifeTime < 3.f) {
 			float opacity = particleShape.getFillColor().a;
 			opacity -= deltaTime;
@@ -83,6 +91,7 @@ class Game {
 
 public:
 	sf::RenderWindow window;
+	sf::RectangleShape HUD;
 	sf::CircleShape glowCentre;
 	sf::CircleShape circleOne;
 	sf::CircleShape circleTwo;
@@ -91,12 +100,17 @@ public:
 	sf::Clock deltaTimeClock;
 	float deltaTime = 0.f;
 	float gravity = 980.f;
+	float format = ("{:.2f}", gravity);
 
 	bool isEmitting = false;
 	float blinkTimer = 0.f;
 
 	Game();
 	particleType type;
+
+	Text stateText;
+	Text radiusText;
+	Text gravityText;
 
 	void update();
 	void handleEvents();
@@ -109,6 +123,11 @@ public:
 Game::Game() : window(sf::VideoMode(800, 600), "Particle Generator") {
 
 	type = particleType::magical;
+
+	HUD.setSize(sf::Vector2f(150.f, 100.f));
+	sf::Color HUDcolor = sf::Color::Red;
+	HUDcolor.a = 100.f;
+	HUD.setFillColor(HUDcolor);
 
 	glowCentre.setRadius(3.f);
 	glowCentre.setFillColor(sf::Color(255,255,255,255));
@@ -126,6 +145,10 @@ Game::Game() : window(sf::VideoMode(800, 600), "Particle Generator") {
 	circleFour.setFillColor(sf::Color(255, 255, 255, 40));
 	circleFour.setOrigin(circleFour.getRadius(), circleFour.getRadius());
 	window.setMouseCursorVisible(false);
+
+	stateText.addDetails("Mode: Magical","resources/arial.ttf", 15 , sf::Color::White,sf::Vector2f(10., 10.));
+	radiusText.addDetails("Radius: ", "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 30.));
+	gravityText.addDetails("Gravity(^): " + to_string((int)gravity), "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 50.));
 }
 
 void Game::handleEvents() {
@@ -151,8 +174,9 @@ void Game::handleEvents() {
 		}
 
 		if (type == particleType::freeFall) {
-			if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::RControl) {
+			if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Up) {
 				gravity += 10;
+				gravityText.toString("Gravity(^): " + to_string((int)gravity));
 				cout << "Gravity: " << gravity << " px/s*s" << endl;
 			}
 		}
@@ -160,15 +184,19 @@ void Game::handleEvents() {
 		if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
 			if (type == particleType::magical) {
 				type = particleType::freeFall;
+				stateText.toString("Mode: Free Fall");
 			}
 			else if (type == particleType::freeFall) {
 				type = particleType::followers;
+				stateText.toString("Mode: Followers");
 			}
 			else if (type == particleType::followers) {
 				type = particleType::wave;
+				stateText.toString("Mode: Wave");
 			}
 			else if (type == particleType::wave) {
 				type = particleType::magical;
+				stateText.toString("Mode: Magical");
 			}
 		}
 
@@ -185,7 +213,7 @@ void Game::update() {
 	circleFour.setPosition(mousepos);
 
 	for (auto& particle : particleVector) {
-		particle.update(deltaTime,gravity,type);
+		particle.update(deltaTime,gravity,type,radiusText);
 	}
 
 	for (size_t i = 0; i < particleVector.size(); i++) {
@@ -263,6 +291,13 @@ void Game::render() {
 	for (auto& particle : particleVector) {
 		if(particle.draw) window.draw(particle.particleShape);
 	}
+
+	if (type == particleType::freeFall) {
+		window.draw(gravityText.getText());
+	}
+		window.draw(HUD);
+		window.draw(stateText.getText());
+		window.draw(radiusText.getText());
 		window.draw(circleFour);
 		window.draw(circleThree);
 		window.draw(circleTwo);
