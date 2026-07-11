@@ -58,18 +58,9 @@ void Particle::update(float& deltaTime, float& gravity, particleType& type) {
 		particleShape.setFillColor(magicalPalette[rand() % 3]);
 
 		if (lifeTime >= 1.5f && lifeTime < 3.f) {
-			float opacity = particleShape.getFillColor().a;
-			opacity -= deltaTime;
-			if (opacity < 0) {
-				opacity = 255;
-				float radius = particleShape.getRadius();
-				radius *= 1.5f;
-				//if (radius >= 20.f) radius = 20.f;
-				particleShape.setRadius(radius);
-			}
-			sf::Color color = particleShape.getFillColor();
-			color.a = opacity;
-			particleShape.setFillColor(color);
+			float radius = particleShape.getRadius();
+			radius *= 1.5f;
+			if (radius >= 20.f) radius = 20.f;
 	}
 
 		if (lifeTime >= 3.f) {
