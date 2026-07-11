@@ -76,7 +76,7 @@ void Particle::update(float& deltaTime, float& gravity, particleType& type) {
 	}
 
 	if (type == particleType::followers || type == particleType::wave) {
-		acceleration = sf::Vector2f( 400,  400);
+		acceleration = sf::Vector2f( rand()%400,  rand()%400);
 		velocity.x += acceleration.x * deltaTime;
 		velocity.y += acceleration.y * deltaTime;
 	}
@@ -164,10 +164,13 @@ void Game::handleEvents() {
 
 			isEmitting = true;
 
-			Particle particleOBJ(radiusText);
-			sf::Vector2f mousepos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-			particleOBJ.particleShape.setPosition(mousepos);
-			particleVector.emplace_back(particleOBJ);
+			for (size_t i = 0; i < 10; i++) {
+				Particle particleOBJ(radiusText);
+				sf::Vector2f mousepos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+				particleOBJ.particleShape.setPosition(mousepos);
+				particleVector.emplace_back(particleOBJ);
+			}
+			
 		}
 		else {
 			isEmitting = false;
