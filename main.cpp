@@ -18,7 +18,7 @@ enum class particleType {
 class Particle {
 
 public:
-	Particle();
+	Particle(Text& radiusText);
 	sf::CircleShape particleShape;
 	sf::Vector2f velocity;
 	sf::Vector2f maxVelocity = (sf::Vector2f(800.f, 500.f));
@@ -29,24 +29,22 @@ public:
 	float lifeTime = 0.f;
 	bool draw = true;
 
-	void update(float& deltaTime , float& gravity, particleType& type, Text& radiusText);
+	void update(float& deltaTime , float& gravity, particleType& type);
 };
 
-Particle::Particle() {
+Particle::Particle(Text& radiusText) {
 
 	particleShape.setRadius(particleRadius);
 	particleShape.setFillColor(sf::Color(rand() % 256, rand() % 256, rand() % 256));
 	velocity = sf::Vector2f(0.f, 0.f);
-	
+	radiusText.toString("Radius: " + to_string(particleRadius));
 
 }
 
-void Particle::update(float& deltaTime, float& gravity, particleType& type, Text& radiusText) {
+void Particle::update(float& deltaTime, float& gravity, particleType& type) {
 
 	
 	//velocity.y += gravity * deltaTime;
-
-	radiusText.toString("Radius: " + to_string(particleRadius));
 
 	lifeTime += deltaTime;
 
@@ -60,7 +58,7 @@ void Particle::update(float& deltaTime, float& gravity, particleType& type, Text
 				opacity = 255;
 				float radius = particleShape.getRadius();
 				radius *= 1.5f;
-				if (radius >= 20.f) radius = 20.f;
+				//if (radius >= 20.f) radius = 20.f;
 				particleShape.setRadius(radius);
 			}
 			sf::Color color = particleShape.getFillColor();
@@ -111,6 +109,7 @@ public:
 	Text stateText;
 	Text radiusText;
 	Text gravityText;
+	Text clearText;
 
 	void update();
 	void handleEvents();
@@ -148,7 +147,8 @@ Game::Game() : window(sf::VideoMode(800, 600), "Particle Generator") {
 
 	stateText.addDetails("Mode: Magical","resources/arial.ttf", 15 , sf::Color::White,sf::Vector2f(10., 10.));
 	radiusText.addDetails("Radius: ", "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 30.));
-	gravityText.addDetails("Gravity(^): " + to_string((int)gravity), "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 50.));
+	gravityText.addDetails("Gravity: " + to_string((int)gravity), "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 50.));
+	clearText.addDetails("Clear!(NUM0) " , "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 70.));
 }
 
 void Game::handleEvents() {
@@ -164,13 +164,17 @@ void Game::handleEvents() {
 
 			isEmitting = true;
 
-			Particle particleOBJ;
+			Particle particleOBJ(radiusText);
 			sf::Vector2f mousepos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 			particleOBJ.particleShape.setPosition(mousepos);
 			particleVector.emplace_back(particleOBJ);
 		}
 		else {
 			isEmitting = false;
+		}
+
+		if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Num0) {
+			particleVector.clear();
 		}
 
 		if (type == particleType::freeFall) {
@@ -213,7 +217,7 @@ void Game::update() {
 	circleFour.setPosition(mousepos);
 
 	for (auto& particle : particleVector) {
-		particle.update(deltaTime,gravity,type,radiusText);
+		particle.update(deltaTime,gravity,type);
 	}
 
 	for (size_t i = 0; i < particleVector.size(); i++) {
@@ -260,12 +264,21 @@ void Game::update() {
 	if (type == particleType::followers) {
 		for (size_t i = 0; i < particleVector.size(); i++) {
 
-			if (particleVector[i].particleShape.getPosition().x < mousepos.x) {
-				particleVector[i].particleShape.move(particleVector[i].velocity.x, particleVector[i].velocity.y);
+			if (particleVector[i].particleShape.getPosition().x < window.getSize().x && particleVector[i].particleShape.getPosition().x >= 0 && particleVector[i].particleShape.getPosition().y >= 0 && particleVector[i].particleShape.getPosition().y < window.getSize().y) {
+				if (particleVector[i].particleShape.getPosition().x < mousepos.x) {
+					particleVector[i].particleShape.move(particleVector[i].velocity.x, 0);
+				}
+				if (particleVector[i].particleShape.getPosition().x > mousepos.x) {
+					particleVector[i].particleShape.move(-particleVector[i].velocity.x, 0);
+				}
+				if (particleVector[i].particleShape.getPosition().y > mousepos.y) {
+					particleVector[i].particleShape.move(0, -particleVector[i].velocity.y);
+				}
+				if (particleVector[i].particleShape.getPosition().y < mousepos.y) {
+					particleVector[i].particleShape.move(0, particleVector[i].velocity.y);
+				}
 			}
-			else if (particleVector[i].particleShape.getPosition().x > mousepos.x) {
-				particleVector[i].particleShape.move(-particleVector[i].velocity.x, particleVector[i].velocity.y);
-			}
+			
 		}
 	}
 
@@ -296,6 +309,7 @@ void Game::render() {
 		window.draw(gravityText.getText());
 	}
 		window.draw(HUD);
+		window.draw(clearText.getText());
 		window.draw(stateText.getText());
 		window.draw(radiusText.getText());
 		window.draw(circleFour);
