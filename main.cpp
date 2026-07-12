@@ -19,7 +19,7 @@ enum class particleType {
 class Particle {
 
 public:
-	Particle(Text& radiusText);
+	Particle(Text& radiusText, particleType& type);
 	sf::CircleShape particleShape;
 	sf::Vector2f velocity;
 	sf::Vector2f maxVelocity = (sf::Vector2f(800.f, 500.f));
@@ -33,16 +33,22 @@ public:
 	float lifeTime = 0.f;
 	bool draw = true;
 
+	int low;
+	int high;
+
 	void update(float& deltaTime , float& gravity, particleType& type);
 };
 
-Particle::Particle(Text& radiusText) {
+Particle::Particle(Text& radiusText, particleType& type) {
 
-	particleRadius = rand() % 6 + 5;
+	low= 5;
+	high = 6;
+	particleRadius = rand() % high + low;
 	particleShape.setRadius(particleRadius);
 	velocity = sf::Vector2f(0.f, 0.f);
-	radiusText.toString("Radius: " + to_string(particleRadius));
+	radiusText.toString("Radius: " + to_string(low) + " to " + to_string(high+low) + " px");
 
+	if ( type == particleType::magical ) particleShape.setFillColor(magicalPalette[rand() % 3]);
 	
 }
 
@@ -55,7 +61,7 @@ void Particle::update(float& deltaTime, float& gravity, particleType& type) {
 
 	if (type == particleType::magical) {
 
-		particleShape.setFillColor(magicalPalette[rand() % 3]);
+		
 
 		if (lifeTime >= 1.5f && lifeTime < 3.f) {
 			float radius = particleShape.getRadius();
@@ -163,7 +169,7 @@ Game::Game() : window(sf::VideoMode(800, 600), "Particle Generator") {
 
 	type = particleType::magical;
 
-	HUD.setSize(sf::Vector2f(150.f, 100.f));
+	HUD.setSize(sf::Vector2f(150.f, 150.f));
 	sf::Color HUDcolor = sf::Color::Red;
 	HUDcolor.a = 100.f;
 	HUD.setFillColor(HUDcolor);
@@ -189,7 +195,7 @@ Game::Game() : window(sf::VideoMode(800, 600), "Particle Generator") {
 	radiusText.addDetails("Radius: ", "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 30.));
 	gravityText.addDetails("Gravity: " + to_string((int)gravity), "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 50.));
 	clearText.addDetails("Clear!(NUM0) " , "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 70.));
-	sizeText.addDetails("Particles: ", "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 90.));
+	sizeText.addDetails("Particles: 0", "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 90.));
 	FPStext.addDetails("FPS: ", "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 110.));
 }
 
@@ -208,14 +214,14 @@ void Game::handleEvents() {
 
 			if (type != particleType::freeFall) {
 				for (size_t i = 0; i < 100; i++) {
-					Particle particleOBJ(radiusText);
+					Particle particleOBJ(radiusText, type);
 					sf::Vector2f mousepos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 					particleOBJ.particleShape.setPosition(mousepos);
 					particleVector.emplace_back(particleOBJ);
 				}
 			}
 			else {
-					Particle particleOBJ(radiusText);
+					Particle particleOBJ(radiusText,type);
 					sf::Vector2f mousepos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 					particleOBJ.particleShape.setPosition(mousepos);
 					particleVector.emplace_back(particleOBJ);
@@ -231,6 +237,7 @@ void Game::handleEvents() {
 
 		if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Num0) {
 			particleVector.clear();
+			sizeText.toString("Particles: " + to_string(particleVector.size()));
 		}
 
 		if (type == particleType::freeFall) {
@@ -246,21 +253,25 @@ void Game::handleEvents() {
 				type = particleType::freeFall;
 				stateText.toString("Mode: Free Fall");
 				particleVector.clear();
+				sizeText.toString("Particles: " + to_string(particleVector.size()));
 			}
 			else if (type == particleType::freeFall) {
 				type = particleType::followers;
 				stateText.toString("Mode: Followers");
 				particleVector.clear();
+				sizeText.toString("Particles: " + to_string(particleVector.size()));
 			}
 			else if (type == particleType::followers) {
 				type = particleType::wave;
 				stateText.toString("Mode: Wave");
 				particleVector.clear();
+				sizeText.toString("Particles: " + to_string(particleVector.size()));
 			}
 			else if (type == particleType::wave) {
 				type = particleType::magical;
 				stateText.toString("Mode: Magical");
 				particleVector.clear();
+				sizeText.toString("Particles: " + to_string(particleVector.size()));
 			}
 		}
 
