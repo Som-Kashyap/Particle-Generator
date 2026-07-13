@@ -153,14 +153,13 @@ public:
 	Text stateText;
 	Text radiusText;
 	Text gravityText;
-	Text clearText;
 	Text sizeText;
 	Text FPStext;
 	Text spawnCountText;
 
 	Text spawnHelpText;
 	Text modeHelpText;
-
+	Text clearHelpText;
 
 	void update();
 	void handleEvents();
@@ -213,12 +212,12 @@ Game::Game() : window(sf::VideoMode(800, 600), "Particle Generator") {
 	stateText.addDetails("Mode: Magical","resources/arial.ttf", 15 , sf::Color::White,sf::Vector2f(10., 10.));
 	radiusText.addDetails("Radius: ", "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 30.));
 	gravityText.addDetails("Gravity: " + to_string((int)gravity), "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 50.));
-	clearText.addDetails("Clear!(NUM0) " , "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 70.));
 	sizeText.addDetails("Particles: 0", "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 90.));
 	FPStext.addDetails("FPS: ", "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 110.));
 	spawnCountText.addDetails("Spawn Count: 100 ", "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 130.));
-	spawnHelpText.addDetails("Increase Spawn-Rate: Up \nDecrease Spawn-Rate: Down ", "resources/arial.ttf", 20, sf::Color::White, sf::Vector2f(controlsDisplay.getPosition().x + 20., controlsDisplay.getPosition().y + 140.));
+	spawnHelpText.addDetails("Increase Spawn-Rate: Up \nDecrease Spawn-Rate: Down ", "resources/arial.ttf", 20, sf::Color::White, sf::Vector2f(controlsDisplay.getPosition().x + 20., controlsDisplay.getPosition().y + 160.));
 	modeHelpText.addDetails("....Modes.... \nMagical: 1\nFree Fall: 2\nConstrained: 3\nWave: 4", "resources/arial.ttf", 20, sf::Color::White, sf::Vector2f(controlsDisplay.getPosition().x + 20., controlsDisplay.getPosition().y + 20.));
+	clearHelpText.addDetails("Clear Particles: C","resources/arial.ttf", 20, sf::Color::White, sf::Vector2f(controlsDisplay.getPosition().x + 20., controlsDisplay.getPosition().y + 210.));
 }
 
 void Game::handleEvents() {
@@ -258,7 +257,7 @@ void Game::handleEvents() {
 
 		}
 
-		if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Num0) {
+		if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::C) {
 			particleVector.clear();
 			sizeText.toString("Particles: " + to_string(particleVector.size()));
 		}
@@ -271,31 +270,32 @@ void Game::handleEvents() {
 			}
 		}
 
-		if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
-			if (type == particleType::magical) {
-				type = particleType::freeFall;
-				stateText.toString("Mode: Free Fall");
-				particleVector.clear();
-				sizeText.toString("Particles: " + to_string(particleVector.size()));
-			}
-			else if (type == particleType::freeFall) {
-				type = particleType::constrained;
-				stateText.toString("Mode: Constrained");
-				particleVector.clear();
-				sizeText.toString("Particles: " + to_string(particleVector.size()));
-			}
-			else if (type == particleType::constrained) {
-				type = particleType::wave;
-				stateText.toString("Mode: Wave");
-				particleVector.clear();
-				sizeText.toString("Particles: " + to_string(particleVector.size()));
-			}
-			else if (type == particleType::wave) {
-				type = particleType::magical;
-				stateText.toString("Mode: Magical");
-				particleVector.clear();
-				sizeText.toString("Particles: " + to_string(particleVector.size()));
-			}
+		if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Num1) {
+			type = particleType::magical;
+			stateText.toString("Mode: Magical");
+			particleVector.clear();
+			sizeText.toString("Particles: " + to_string(particleVector.size()));
+		}
+
+		if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Num2) {
+			type = particleType::freeFall;
+			stateText.toString("Mode: Free Fall");
+			particleVector.clear();
+			sizeText.toString("Particles: " + to_string(particleVector.size()));
+		}
+
+		if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Num3) {
+			type = particleType::constrained;
+			stateText.toString("Mode: Constrained");
+			particleVector.clear();
+			sizeText.toString("Particles: " + to_string(particleVector.size()));
+		}
+
+		if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Num4) {
+			type = particleType::wave;
+			stateText.toString("Mode: Wave");
+			particleVector.clear();
+			sizeText.toString("Particles: " + to_string(particleVector.size()));
 		}
 
 		if (type != particleType::freeFall) {
@@ -427,13 +427,13 @@ void Game::render() {
 		window.draw(controlsDisplay);
 		window.draw(spawnHelpText.getText());
 		window.draw(modeHelpText.getText());
+		window.draw(clearHelpText.getText());
 	}
 		
 		window.draw(HUD);
 		window.draw(spawnCountText.getText());
 		window.draw(FPStext.getText());
 		window.draw(sizeText.getText());
-		window.draw(clearText.getText());
 		window.draw(stateText.getText());
 		window.draw(radiusText.getText());
 		window.draw(outerCircle);
