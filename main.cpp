@@ -132,6 +132,7 @@ public:
 	sf::CircleShape circleThree;
 	sf::CircleShape circleFour;
 	sf::CircleShape outerCircle;
+
 	sf::Clock deltaTimeClock;
 	float deltaTime = 0.f;
 	float FPS = 0.f;
@@ -145,6 +146,7 @@ public:
 
 	Game();
 	particleType type;
+	int spawnCount = 100;
 
 	Text stateText;
 	Text radiusText;
@@ -152,6 +154,7 @@ public:
 	Text clearText;
 	Text sizeText;
 	Text FPStext;
+	Text spawnCountText;
 
 	void update();
 	void handleEvents();
@@ -169,7 +172,7 @@ Game::Game() : window(sf::VideoMode(800, 600), "Particle Generator") {
 
 	type = particleType::magical;
 
-	HUD.setSize(sf::Vector2f(150.f, 150.f));
+	HUD.setSize(sf::Vector2f(150.f, 180.f));
 	sf::Color HUDcolor = sf::Color::Red;
 	HUDcolor.a = 100.f;
 	HUD.setFillColor(HUDcolor);
@@ -201,6 +204,7 @@ Game::Game() : window(sf::VideoMode(800, 600), "Particle Generator") {
 	clearText.addDetails("Clear!(NUM0) " , "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 70.));
 	sizeText.addDetails("Particles: 0", "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 90.));
 	FPStext.addDetails("FPS: ", "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 110.));
+	spawnCountText.addDetails("Spawn Count: 100 ", "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 130.));
 }
 
 void Game::handleEvents() {
@@ -217,7 +221,7 @@ void Game::handleEvents() {
 			isEmitting = true;
 
 			if (type != particleType::freeFall) {
-				for (size_t i = 0; i < 100; i++) {
+				for (size_t i = 0; i < spawnCount; i++) {
 					Particle particleOBJ(radiusText, type);
 					sf::Vector2f mousepos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 					particleOBJ.particleShape.setPosition(mousepos);
@@ -280,6 +284,17 @@ void Game::handleEvents() {
 			}
 		}
 
+		if (type != particleType::freeFall) {
+			if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Up) {
+				if (spawnCount <= 90 && spawnCount >= 10) spawnCount += 10;
+				else if (spawnCount < 10) spawnCount = 10;
+			}
+			else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Down) {
+				if (spawnCount > 10 && spawnCount <= 100) spawnCount -= 10;
+				else if (spawnCount <= 10) spawnCount = 1;
+			}
+			spawnCountText.toString("Spawn Count: " + to_string(spawnCount));
+		}
 	}
 }
 
@@ -372,6 +387,7 @@ void Game::update() {
 	//		else glowCentre.setFillColor(sf::Color::White);
 	//	}
 	//}
+	//else glowCentre.setFillColor(sf::Color::White);
 
 }
 
@@ -386,7 +402,9 @@ void Game::render() {
 	if (type == particleType::freeFall) {
 		window.draw(gravityText.getText());
 	}
+		
 		window.draw(HUD);
+		window.draw(spawnCountText.getText());
 		window.draw(FPStext.getText());
 		window.draw(sizeText.getText());
 		window.draw(clearText.getText());
