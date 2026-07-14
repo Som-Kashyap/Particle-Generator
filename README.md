@@ -49,6 +49,9 @@ Explore different particle behaviors ranging from magical motion to fireworks, a
 
 ---
 
+## How to Run?
+
+
 ## 🛠Built with
 - C++
 - SFML 2.5.1
