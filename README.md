@@ -62,17 +62,15 @@ Explore different particle behaviors ranging from magical motion to fireworks, a
 1. Clone or download this repository.
 
 ```bash
-git clone https://github.com/username/Particle-Playground.git
+git clone https://github.com/Som-Kashyap/Particle-Playground.git
 ```
-2. Copy the dlls and the src files next to the .slnx
+2. Open the solution (`.slnx`) in Visual Studio.
 
-3. Open the solution (`.slnx`) in Visual Studio.
+3. Build the project.
 
-4. Build the project.
+4. Copy all DLL files from the `dlls` folder into the same directory(x64/release) as the generated executable (or keep them beside the `.exe` if they are already there).
 
-5. Copy all DLL files from the `DLLs` folder into the same directory as the generated executable (or keep them beside the `.exe` if they are already there).
-
-6. Run the executable (x64/Release).
+5. Run the executable (x64/Release).
 
 
 ## 🛠Built with
