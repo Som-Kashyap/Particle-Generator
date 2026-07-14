@@ -40,6 +40,7 @@ public:
 	int high;
 
 	void update(float& deltaTime , float& gravity, particleType& type, bool& toggleGravity);
+	void setFireworksColor(sf::Color color);
 };
 
 Particle::Particle(Text& radiusText, particleType& type) {
@@ -164,10 +165,13 @@ void Particle::update(float& deltaTime, float& gravity, particleType& type, bool
 			alpha = rand() % 121 + 50;
 			particleShape.move(velocity * deltaTime);
 			color.a = alpha;
+			particleShape.setFillColor(color);
 		}
 		else if (lifeTime >= 5 && lifeTime < 6) {
 			//particleShape.move(0, 0);
 			alpha -= deltaTime;
+			color.a = alpha;
+			particleShape.setFillColor(color);
 			velocity.y += (gravity * deltaTime)/5;
 			particleShape.move(velocity * deltaTime);
 		}
@@ -232,6 +236,12 @@ public:
 	Text helpText;
 	Text gravityHelpText;
 
+	sf::RectangleShape colorPalette;
+	sf::RectangleShape BluePalette;
+	sf::RectangleShape RedPalette;
+	sf::RectangleShape GreenPalette;
+	sf::RectangleShape GoldPalette;
+
 	void update();
 	void handleEvents();
 	void render();
@@ -278,6 +288,18 @@ Game::Game() : window(sf::VideoMode(800, 600), "Particle Generator") {
 	outerCircle.setFillColor(sf::Color(255, 255, 255, 20));
 	outerCircle.setOrigin(outerCircle.getRadius(), outerCircle.getRadius());
 
+	colorPalette.setSize(sf::Vector2f(200., 200.));
+	colorPalette.setFillColor(sf::Color::White);
+	sf::Color colorPaletteColor = colorPalette.getFillColor();
+	colorPaletteColor.a = 50.f;
+	colorPalette.setFillColor(colorPaletteColor);
+	colorPalette.setPosition(10., 300.);
+
+	BluePalette.setSize(sf::Vector2f(40., 40.));
+	BluePalette.setFillColor(sf::Color::Blue);
+	BluePalette.setPosition(20., 310.);
+	
+
 	window.setMouseCursorVisible(false);
 
 	stateText.addDetails("Mode: Magical","resources/arial.ttf", 15 , sf::Color::White,sf::Vector2f(10., 10.));
@@ -317,6 +339,7 @@ void Game::handleEvents() {
 					particleVector.emplace_back(particleOBJ);
 				}
 			}
+
 			else {
 					Particle particleOBJ(radiusText,type);
 					sf::Vector2f mousepos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
@@ -526,6 +549,11 @@ void Game::render() {
 		window.draw(controlsHelpText.getText());
 		window.draw(helpText.getText());
 		window.draw(gravityHelpText.getText());
+	}
+
+	if (type == particleType::fireworks) {
+		window.draw(colorPalette);
+		window.draw(BluePalette);
 	}
 
 	if (type == particleType::magical) {
