@@ -217,6 +217,7 @@ public:
 	bool showControls = false;
 	bool toggleGravity = false;
 	bool isEmitting = false;
+	bool showColorPalette = false;
 	float blinkTimer = 0.f;
 	
 	vector<Particle>particleVector;
@@ -239,6 +240,7 @@ public:
 	Text controlsHelpText;
 	Text helpText;
 	Text gravityHelpText;
+	Text colorPaletteHelpText;
 
 	vector<sf::RectangleShape> colorPaletteVector;
 	sf::Color color;
@@ -247,6 +249,11 @@ public:
 	sf::RectangleShape RedPalette;
 	sf::RectangleShape GreenPalette;
 	sf::RectangleShape GoldPalette;
+	sf::RectangleShape EmeraldPalette;
+	sf::RectangleShape HotPinkPalette;
+	sf::RectangleShape WhitePalette;
+	sf::RectangleShape VioletPalette;
+	sf::RectangleShape CyanPalette;
 
 	void update();
 	void handleEvents();
@@ -273,11 +280,11 @@ Game::Game() : window(sf::VideoMode(800, 600), "Particle Generator") {
 	sf::Color controlsDisplayColor = sf::Color::Blue;
 	controlsDisplayColor.a = 50.f;
 	controlsDisplay.setFillColor(controlsDisplayColor);
-	controlsDisplay.setPosition(window.getSize().x/2 - controlsDisplay.getSize().x/2, window.getSize().y/2 - controlsDisplay.getSize().y/2);
+	controlsDisplay.setPosition(window.getSize().x / 2 - controlsDisplay.getSize().x / 2, window.getSize().y / 2 - controlsDisplay.getSize().y / 2);
 
 	glowCentre.setRadius(3.f);
-	glowCentre.setFillColor(sf::Color(255,255,255,255));
-	glowCentre.setOrigin(glowCentre.getRadius(),glowCentre.getRadius());
+	glowCentre.setFillColor(sf::Color(255, 255, 255, 255));
+	glowCentre.setOrigin(glowCentre.getRadius(), glowCentre.getRadius());
 	circleOne.setRadius(5.f);
 	circleOne.setFillColor(sf::Color(255, 255, 255, 150));
 	circleOne.setOrigin(circleOne.getRadius(), circleOne.getRadius());
@@ -294,7 +301,7 @@ Game::Game() : window(sf::VideoMode(800, 600), "Particle Generator") {
 	outerCircle.setFillColor(sf::Color(255, 255, 255, 20));
 	outerCircle.setOrigin(outerCircle.getRadius(), outerCircle.getRadius());
 
-	colorPalette.setSize(sf::Vector2f(200., 200.));
+	colorPalette.setSize(sf::Vector2f(160., 160.));
 	colorPalette.setFillColor(sf::Color::White);
 	sf::Color colorPaletteColor = colorPalette.getFillColor();
 	colorPaletteColor.a = 50.f;
@@ -317,10 +324,30 @@ Game::Game() : window(sf::VideoMode(800, 600), "Particle Generator") {
 	GoldPalette.setFillColor(sf::Color(239, 191, 4));
 	GoldPalette.setPosition(70., 310.);
 	colorPaletteVector.push_back(GoldPalette);
+	EmeraldPalette.setSize(sf::Vector2f(40., 40.));
+	EmeraldPalette.setPosition(70., 360.);
+	EmeraldPalette.setFillColor(sf::Color(80, 200, 120));
+	colorPaletteVector.push_back(EmeraldPalette);
+	HotPinkPalette.setPosition(70., 410.);
+	HotPinkPalette.setFillColor(sf::Color(255, 105, 180));
+	HotPinkPalette.setSize(sf::Vector2f(40., 40.));
+	colorPaletteVector.push_back(HotPinkPalette);
+	WhitePalette.setSize(sf::Vector2f(40., 40.));
+	WhitePalette.setFillColor(sf::Color::White);
+	WhitePalette.setPosition(120., 310.);
+	colorPaletteVector.push_back(WhitePalette);
+	VioletPalette.setSize(sf::Vector2f(40., 40.));
+	VioletPalette.setFillColor(sf::Color(148, 0, 211));
+	VioletPalette.setPosition(120., 360.);
+	colorPaletteVector.push_back(VioletPalette);
+	CyanPalette.setSize(sf::Vector2f(40., 40.));
+	CyanPalette.setFillColor(sf::Color::Cyan);
+	CyanPalette.setPosition(120., 410.);
+	colorPaletteVector.push_back(CyanPalette);
 
 	window.setMouseCursorVisible(true);
 
-	stateText.addDetails("Mode: Magical","resources/arial.ttf", 15 , sf::Color::White,sf::Vector2f(10., 10.));
+	stateText.addDetails("Mode: Magical", "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 10.));
 	radiusText.addDetails("Radius: ", "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 30.));
 	gravityText.addDetails("Gravity: " + to_string((int)gravity), "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 60.));
 	sizeText.addDetails("Particles: 0", "resources/arial.ttf", 15, sf::Color::White, sf::Vector2f(10., 90.));
@@ -330,10 +357,11 @@ Game::Game() : window(sf::VideoMode(800, 600), "Particle Generator") {
 
 	spawnHelpText.addDetails("Increase Spawn-Rate: Up \nDecrease Spawn-Rate: Down ", "resources/arial.ttf", 20, sf::Color::White, sf::Vector2f(controlsDisplay.getPosition().x + 20., controlsDisplay.getPosition().y + 200.));
 	modeHelpText.addDetails("....Modes.... \nMagical: 1\nFree Fall: 2\nConstrained: 3\nWave: 4\nFreeze: 5\nFireworks: 6", "resources/arial.ttf", 20, sf::Color::White, sf::Vector2f(controlsDisplay.getPosition().x + 20., controlsDisplay.getPosition().y + 20.));
-	clearHelpText.addDetails("Clear Particles: C","resources/arial.ttf", 20, sf::Color::White, sf::Vector2f(controlsDisplay.getPosition().x + 20., controlsDisplay.getPosition().y + 250.));
+	clearHelpText.addDetails("Clear Particles: C", "resources/arial.ttf", 20, sf::Color::White, sf::Vector2f(controlsDisplay.getPosition().x + 20., controlsDisplay.getPosition().y + 250.));
 	controlsHelpText.addDetails("Emit Particles: LCtrl", "resources/arial.ttf", 20, sf::Color::White, sf::Vector2f(controlsDisplay.getPosition().x + 20., controlsDisplay.getPosition().y + 280.));
 	helpText.addDetails("Toggle Help: H", "resources/arial.ttf", 20, sf::Color::White, sf::Vector2f(controlsDisplay.getPosition().x + 20., controlsDisplay.getPosition().y + 310.));
 	gravityHelpText.addDetails("Toggle Gravity: G", "resources/arial.ttf", 20, sf::Color::White, sf::Vector2f(controlsDisplay.getPosition().x + 20., controlsDisplay.getPosition().y + 340.));
+	colorPaletteHelpText.addDetails("Toggle Color Palette: Tab", "resources/arial.ttf", 20, sf::Color::White, sf::Vector2f(controlsDisplay.getPosition().x + 20., controlsDisplay.getPosition().y + 370.));
 }
 
 void Game::handleEvents() {
@@ -452,6 +480,10 @@ void Game::handleEvents() {
 			else gravityStatusText.toString("Gravity: OFF");
 		}
 
+		if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Tab && type == particleType::fireworks) {
+			showColorPalette = !showColorPalette;
+		}
+
 		if (event.type == sf::Event::MouseButtonPressed && type == particleType::fireworks) {
 			sf::Vector2f mousepos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 			for (int i = 0; i < colorPaletteVector.size(); i++) {
@@ -462,6 +494,7 @@ void Game::handleEvents() {
 					}
 				}
 			}
+			
 		}
 	}
 }
@@ -579,14 +612,19 @@ void Game::render() {
 		window.draw(controlsHelpText.getText());
 		window.draw(helpText.getText());
 		window.draw(gravityHelpText.getText());
+		window.draw(colorPaletteHelpText.getText());
 	}
 
 	if (type == particleType::fireworks) {
-		window.draw(colorPalette);
-		window.draw(BluePalette);
-		window.draw(RedPalette);
-		window.draw(GreenPalette);
-		window.draw(GoldPalette);
+		
+		if (showColorPalette) {
+			window.draw(colorPalette);
+
+			for (auto& palette : colorPaletteVector) {
+				window.draw(palette);
+			}
+		}
+		
 	}
 
 	if (type == particleType::magical) {
