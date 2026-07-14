@@ -91,9 +91,6 @@ void Particle::update(float& deltaTime, float& gravity, particleType& type, bool
 		acceleration = sf::Vector2f(rand()%400, rand() % 400);
 		velocity.x += acceleration.x * deltaTime;
 		velocity.y += acceleration.y * deltaTime;
-		if (toggleGravity) {
-			velocity.y += gravity * deltaTime;
-		}
 		if (lifeTime >= 3) {
 			lifeTime = 0.f;
 			draw = false;
@@ -107,10 +104,6 @@ void Particle::update(float& deltaTime, float& gravity, particleType& type, bool
 		velocity.x += acceleration.x * deltaTime;
 		velocity.y += acceleration.y * deltaTime;
 		particleShape.setFillColor(wavePalette[rand() % 3]);
-
-		if (toggleGravity) {
-			velocity.y += gravity * deltaTime;
-		}
 
 		if (lifeTime > 3 && lifeTime < 6) {
 			sf::Color color = particleShape.getFillColor();
@@ -460,7 +453,7 @@ void Game::render() {
 		window.draw(gravityHelpText.getText());
 	}
 
-	if (type != particleType::freeFall) {
+	if (type == particleType::magical) {
 		window.draw(gravityStatusText.getText());
 	}
 		
