@@ -48,6 +48,11 @@ Particle::Particle(Text& radiusText, particleType& type) {
 		particleShape.setFillColor(sf::Color::Magenta);
 		radiusText.toString("Radius: " + to_string(particleRadius) + " px");
 	}
+	else if (type == particleType::fireworks) {
+		particleRadius = 1.f;
+		particleShape.setFillColor(sf::Color(rand() % 256, rand() % 256, rand() % 256));
+		radiusText.toString("Radius: " + to_string(particleRadius) + " px");
+	}
 	else {
 		low = 5;
 		high = 6;
@@ -147,9 +152,35 @@ void Particle::update(float& deltaTime, float& gravity, particleType& type, bool
 		}
 	}
 
-	if (type != particleType::freeze) {
+	if (type == particleType::fireworks) {
+
+		sf::Color color = particleShape.getFillColor();
+		int alpha = color.a;
+
+		if (lifeTime > 3 && lifeTime < 5) {
+			acceleration = sf::Vector2f((rand() % 20)-10, (rand() % 20)-10);
+			velocity += acceleration;
+			alpha = rand() % 121 + 50;
+			particleShape.move(velocity * deltaTime);
+			color.a = alpha;
+		}
+		else if (lifeTime >= 5 && lifeTime < 6) {
+			particleShape.move(0, 0);
+			alpha -= deltaTime;
+		}
+		else if (lifeTime >= 6) {
+			draw = false;
+			lifeTime = 0.f;
+		}
+		
+		particleShape.setFillColor(color);
+	}
+
+	if (type != particleType::freeze && type != particleType::fireworks) {
 		particleShape.move(velocity * deltaTime);
 	}
+
+	
 
 }
 
