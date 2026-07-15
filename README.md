@@ -68,7 +68,7 @@ git clone https://github.com/Som-Kashyap/Particle-Playground.git
 
 3. Build the project.
 
-4. Copy all DLL files from the `dlls` folder into the same directory(x64/release) as the generated executable (or keep them beside the `.exe` if they are already there).
+4. Copy all DLL files from the `dlls` folder and `resources` folder into the same directory(x64/release) as the generated executable (or keep them beside the `.exe` if they are already there).
 
 5. Run the executable (x64/Release).
 
